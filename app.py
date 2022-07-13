@@ -45,9 +45,15 @@ db.create_all()
 def url_handler():
     if request.method == 'POST':
         url = request.form['url']
-
+        check_url = URLModel.query.filter_by(url=url).first()
+        
         if not url:
             return render_template('index.html',text='You need to enter a URL!'), 200
+        
+        if check_url:
+            short_id=check_url.short_id
+            return render_template('index.html',text='That URL already has a link', link=request.host_url + short_id), 200
+
 
        
         short_id = create_short_id(6)
