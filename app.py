@@ -52,7 +52,7 @@ def url_handler():
         
         if check_url:
             short_id=check_url.short_id
-            return render_template('index.html',text='That URL already has a link', link=request.host_url + short_id), 200
+            return render_template('index.html',text='That URL already has a link:', link=request.host_url + short_id), 200
 
 
        
