@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
@@ -15,76 +15,61 @@ CORS(app)
 # """ .replace("://", "ql://", 1) """
 # set up car model
 
-
 class URLModel(db.Model):
-    __tablename__ = 'urls'
+     __tablename__ = 'urls'
 
-    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    url = db.Column(db.String())
-    short_id = db.Column(db.String())
+     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+     url = db.Column(db.String())
+     short_id = db.Column(db.String())
 
-    def __init__(self, url, short_id):
-        self.url = url
-        self.short_id = short_id
+     def __init__(self, url, short_id):
+         self.url = url
+         self.short_id = short_id
 
-    def __repr__(self):
-        return f"<URL:  {self.url}>"
-
-
-@app.route('/')
-def handle_home():
-    return 'Hello'
+     def __repr__(self):
+         return f"<URL:  {self.url}>"
 
 
-@app.route('/shorten', methods=['POST', 'GET'])
-def handle_urls():
+@app.route('/', methods=['GET', 'POST'])
+def url_handler():
     if request.method == 'POST':
+        url = request.form['url']
+
+        if not url:
+            return render_template('index.html',text='You need to enter a URL!'), 200
+
+       
+        short_id = create_short_id(6)
 
         new_url = URLModel(
-            url=request.form['url'], short_id='???')
+            original_url=url, short_id=short_id)
         db.session.add(new_url)
         db.session.commit()
-        return {"message": f"url: {new_url.url} has been created successfully, your id is {new_url.short_id}"}
-
-    """ elif request.method == 'GET':
-        cars = URLModel.query.all()
-        results = [
-            {
-                "id": car.id,
-                "name": car.name,
-                "model": car.model,
-                "doors": car.doors
-            } for car in cars]
-        return {"count": len(results), "cars": results} """
-
-
-@app.route('/cars/<id>', methods=['GET', 'DELETE', 'PATCH'])
-def get_single_car(id):
-    if request.method == 'GET':
-        car = URLModel.query.get(id)
-        results = {
-            "id": car.id,
-            "name": car.name,
-            "model": car.model,
-            "doors": car.doors
-        }
-        return results
-
-    elif request.method == 'DELETE':
-        URLModel.query.filter_by(id=id).delete()
-        db.session.commit()
-
-        return {"message": f"car has been deleted successfully."}
-
-    elif request.method == 'PATCH':
-        data = request.get_json()
-        db.session.query(URLModel).filter(
-            URLModel.id == id).update({'model': data['model']})
-        db.session.commit()
-
-        return {"message": f"car has  been updated successfully."}
-
         
+
+        return render_template('index.html', text=f'Here is your new URL: {request.host_url + short_id}')
+         
+    return render_template('index.html')
+
+# id route
+@app.route('/<short_id>')
+def redirect_url(short_id):
+    link = URLModel.query.filter_by(short_id=short_id).first()
+    if link:
+        return redirect(link.original_url)
+    else:
+        flash('That URL is not valid!')
+        return redirect(url_for('index'))
+
+# short id generator        
+def generate_short_id(num_of_chars):
+    return ''.join(choice(string.ascii_lowercase+string.ascii_uppercase+string.digits) for _ in range(num_of_chars))
+
+
+# error handler
+@app.errorhandler(exceptions.InternalServerError)
+def handle_500(err):
+    return render_template('errors/500.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
