@@ -9,7 +9,7 @@ import os
 
 # connect to sql db on heroku
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://postgres:willwill@localhost/url_shortener'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:chargemy@localhost/urlshort'
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
