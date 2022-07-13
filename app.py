@@ -51,7 +51,7 @@ def url_handler():
         db.session.commit()
         
 
-        return render_template('index.html', text= "Here is your new URL:", link={request.host_url + short_id})
+        return render_template('index.html', text= "Here is your new URL:", link=request.host_url + short_id)
          
     return render_template('index.html')
 
