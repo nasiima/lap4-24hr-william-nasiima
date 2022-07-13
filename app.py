@@ -60,7 +60,7 @@ def url_handler():
 def redirect_url(short_id):
     link = URLModel.query.filter_by(short_id=short_id).first()
     if link:
-        return redirect(link.original_url)
+        return redirect(link.url)
     else:
         return render_template('index.html', text=f"That link doesn't exist, please create one here")
 
