@@ -6,10 +6,15 @@ from werkzeug import exceptions
 import string
 import random
 import os
+import re
+
 
 # connect to sql db on heroku
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://oidtvpokxbgeyj:85c22ccdbe784bc80b443731ef04cd09f78a4db09091b8f0fb865d1f2665210e@ec2-3-219-229-143.compute-1.amazonaws.com:5432/dc0ie9op6pgl0n'
+
+
+    
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://oidtvpokxbgeyj:85c22ccdbe784bc80b443731ef04cd09f78a4db09091b8f0fb865d1f2665210e@ec2-3-219-229-143.compute-1.amazonaws.com:5432/dc0ie9op6pgl0n'
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -32,6 +37,8 @@ class URLModel(db.Model):
 
      def __repr__(self):
          return f"<URL:  {self.url}>"
+
+db.create_all()
 
 
 @app.route('/', methods=['GET', 'POST'])
