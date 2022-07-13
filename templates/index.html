@@ -2,13 +2,15 @@
 
 {% block content %}
 <!-- action of the form redirects to welcome, the parameters are passed into the string -->
-<form class="mt-3 mx-3" action="/shorten">
-  <label for="url">URL</label>
-  <input type="text" id="url" name="name">
+<div class="center">
+  <form class="mt-3 mx-3" action="/shorten">
+    <label for="url">URL</label>
+    <input type="text" id="url" name="name">
+    
+    
+    <input type="submit" value="Shorten">
+  </form>
+</div>
 
-  
-  <input type="submit" value="Shorten">
-</form>
-<div>{{result}}</div>
 <div>{{text}}</div>
 {% endblock %}

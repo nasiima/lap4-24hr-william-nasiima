@@ -2,17 +2,20 @@ from flask import Flask, jsonify, request, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
+from werkzeug import exceptions
+import string
+import random
 import os
 
 # connect to sql db on heroku
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace("://", "ql://", 1)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 CORS(app)
 
 
-# """ .replace("://", "ql://", 1) """
+# """ """
 # set up car model
 
 class URLModel(db.Model):
@@ -58,18 +61,26 @@ def redirect_url(short_id):
     if link:
         return redirect(link.original_url)
     else:
-        flash('That URL is not valid!')
-        return redirect(url_for('index'))
+        return render_template('index.html', text=f"That link doesn't exist, please create one here")
 
 # short id generator        
-def generate_short_id(num_of_chars):
-    return ''.join(choice(string.ascii_lowercase+string.ascii_uppercase+string.digits) for _ in range(num_of_chars))
+def create_short_id(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 
 # error handler
-@app.errorhandler(exceptions.InternalServerError)
+@app.errorhandler(404)
+def handle_404(err):
+    return render_template('errors/404.html'), 404
+
+@app.errorhandler(405)
+def handle_405(err):
+    return render_template('errors/405.html'), 405
+
+
+@app.errorhandler(500)
 def handle_500(err):
-    return render_template('errors/500.html')
+    return render_template('errors/500.html'), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
