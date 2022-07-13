@@ -46,7 +46,7 @@ def url_handler():
         short_id = create_short_id(6)
 
         new_url = URLModel(
-            original_url=url, short_id=short_id)
+            url=url, short_id=short_id)
         db.session.add(new_url)
         db.session.commit()
         
